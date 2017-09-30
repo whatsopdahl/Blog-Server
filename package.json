@@ -1,0 +1,25 @@
+{
+  "name": "blog-server",
+  "version": "1.0.0",
+  "description": "A server for the whatsopdahl website",
+  "main": "index.js",
+  "private": true,
+  "scripts": {
+    "test": "echo \\\"Error: No tests available\\\""
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/whatsopdahl/Blog-Server.git"
+  },
+  "author": "Jon Opdahl",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/whatsopdahl/Blog-Server/issues"
+  },
+  "homepage": "https://github.com/whatsopdahl/Blog-Server#readme",
+  "dependencies": {
+    "body-parser": "^1.18.2",
+    "express": "^4.16.1",
+    "nodemailer": "^4.1.1"
+  }
+}
