@@ -1,12 +1,14 @@
 const express = require("express");
 const mailer = require("nodemailer");
-const config = require("./config.json");
 const bodyParser = require("body-parser");
 const api = express();
 
-const transporter = nodemailer.createTransport({
+const transporter = mailer.createTransport({
   service: 'gmail',
-  auth: config.gmailAuth
+  auth: {
+    email : process.env.emailOut,
+    password : process.env.passwordOut
+  }
 });
 
 api.set('port', (process.env.port || 3000));
@@ -27,8 +29,8 @@ api.post('/email', (req, resp) => {
   timestamp = encodeURIComponent(timestamp);
 
   const mailOptions = {
-    from: config.gmailAuth.email,
-    to: config.targetEmail,
+    from: process.env.emailOut,
+    to: process.env.emailTarget,
     subject: 'WHATSOPDAHL.COM@'+timestamp+" : "+subject,
     text: "From : "+firstName+" "+lastName+" <"+email+">\n"+message
   };
