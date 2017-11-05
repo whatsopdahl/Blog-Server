@@ -3,56 +3,83 @@ const mailer = require("nodemailer");
 const bodyParser = require("body-parser");
 const api = express();
 
-const transporter = mailer.createTransport({
-  service: 'gmail',
-  auth: {
-    email : process.env.emailOut,
-    password : process.env.passwordOut
-  }
+let transporter = mailer.createTransport({
+ service: 'gmail',
+ auth: {
+        user: process.env.emailOut,
+        pass: process.env.passwordOut
+    }
 });
 
 api.set('port', (process.env.port || 3000));
 
-app.use(function(req, res, next) {
-  res.header("Access-Control-Allow-Origin", "*");
-  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
-  next();
-});
 api.use(bodyParser.urlencoded({
   extended : true
 }));
 api.use(bodyParser.json());
+api.use(function(req, res, next) {
+  res.header("Access-Control-Allow-Origin", "http://localhost:4200");
+  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+  next();
+});
 
 api.post('/email', (req, resp) => {
   const { body } = req;
-  const { email, firstName, lastName, subject, message, timestamp } = body;
-  email = encodeURIComponent(email);
-  firstName = encodeURIComponent(firstName);
-  lastName = encodeURIComponent(lastName);
-  subject = encodeURIComponent(subject);
-  message = encodeURIComponent(message);
-  timestamp = encodeURIComponent(timestamp);
+  let email = replaceInjectedScriptTags(body.email);
+  let firstName = replaceInjectedScriptTags(body.firstName);
+  let lastName = replaceInjectedScriptTags(body.lastName);
+  let subject = replaceInjectedScriptTags(body.subject);
+  let message = replaceInjectedScriptTags(body.message);
+  let timestamp = (new Date()).toString();
 
   const mailOptions = {
-    from: process.env.emailOut,
-    to: process.env.emailTarget,
-    subject: 'WHATSOPDAHL.COM@'+timestamp+" : "+subject,
-    text: "From : "+firstName+" "+lastName+" <"+email+">\n"+message
+    from : process.env.emailOut,
+    to: process.env.emailOut,
+    replyTo: email,
+    subject: `'WHATSOPDAHL.COM@${timestamp} : ${subject}'`,
+    text: `From : ${firstName} ${lastName} -- ${email} \n ${message}`
   };
-  transporter.sendEmail(mailOptions, (err, info) => {
-      if (err) {
-        console.error("An error occurred while trying to send an email", err);
-      } else {
-        console.log("Email successfully sent : "+info);
-      }
+  transporter.sendMail(mailOptions, (err, res) => {
+    if (err) {
+      console.error("Error sending email :", err);
+      resp.status(500).send(`Error sending email : ${err}`);
+      return;
+    }
+    console.log("Email successfully sent");
+    resp.status(200).send("Email successfully sent");
   });
-});
-
-api.all("*", (req,res) => {
-  console.error("ERROR: Invalid request", encodeURIComponent(req));
-  res.status(405).send("Invalid request - the method you requested is not supported.");
+  const notifyOfMailOptions = {
+    from : process.env.emailOut,
+    to : process.env.emailTarget,
+    subject : "New email from whatsopdahl.com",
+    text : `Email send from whatsopdahl.com @ ${timestamp}`
+  };
+  transporter.sendMail(notifyOfMailOptions, (err, res) => {
+    if (err) {
+      console.error(`Error sending mail : ${err}`);
+    }
+    console.log("Notified of email");
+  });
 });
 
 api.listen(api.get('port'), () => {
   console.log("Server listenting at port "+api.get("port"));
 });
+
+String.prototype.replaceAll =  function (search, replace) {
+    //if replace is not sent, return original string otherwise it will
+    //replace search string with 'undefined'.
+    if (replace === undefined) {
+        return this.toString();
+    }
+
+    return this.replace(new RegExp('[' + search + ']', 'g'), replace);
+}
+
+function replaceInjectedScriptTags(str) {
+  str = str.replaceAll('<', '--less than--');
+  str = str.replaceAll('>', '--greater than--');
+  str = str.replaceAll('&', '--and--');
+  str = str.replaceAll('/', '--forward slash--')
+  return str;
+}
