@@ -18,7 +18,7 @@ api.use(bodyParser.urlencoded({
 }));
 api.use(bodyParser.json());
 api.use(function(req, res, next) {
-  res.header("Access-Control-Allow-Origin", "http://whatsopdahl.com");
+  res.header("Access-Control-Allow-Origin", "https://whatsopdahl.github.io");
   res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
   next();
 });
