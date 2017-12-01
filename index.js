@@ -11,11 +11,10 @@ let transporter = mailer.createTransport({
     }
 });
 
-api.set('port', (process.env.port || 3000));
+api.set('port', (process.env.port || 5000));
 
 api.use(function(req, res, next) {
     res.header('Access-Control-Allow-Origin', '*');
-    res.header('Access-Control-Allow-Methods', 'GET,POST,OPTIONS');
     res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, Content-Length, X-Requested-With');
 
     // intercept OPTIONS method
