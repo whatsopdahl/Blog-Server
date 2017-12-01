@@ -71,6 +71,10 @@ api.post('/email', (req, resp) => {
   });
 });
 
+api.get("/", (req, res) => {
+  res.send(`Server is listenting at port ${api.get("port")}`);
+});
+
 api.listen(api.get('port'), () => {
   console.log("Server listenting at port "+api.get("port"));
 });
