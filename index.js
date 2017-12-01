@@ -1,7 +1,6 @@
 const express = require("express");
 const mailer = require("nodemailer");
 const bodyParser = require("body-parser");
-const cors = require('cors');
 const api = express();
 
 let transporter = mailer.createTransport({
@@ -14,9 +13,19 @@ let transporter = mailer.createTransport({
 
 api.set('port', (process.env.port || 3000));
 
-api.use(cors({
-  origin: 'http://whatsopdahl.com'
-}));
+api.use(function(req, res, next) {
+    res.header('Access-Control-Allow-Origin', '*');
+    res.header('Access-Control-Allow-Methods', 'GET,POST,OPTIONS');
+    res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, Content-Length, X-Requested-With');
+
+    // intercept OPTIONS method
+    if ('OPTIONS' == req.method) {
+      res.send(200);
+    }
+    else {
+      next();
+    }
+});
 
 api.use(bodyParser.urlencoded({
   extended : true
