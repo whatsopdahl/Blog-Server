@@ -13,15 +13,20 @@ let transporter = mailer.createTransport({
 
 api.set('port', (process.env.port || 3000));
 
+
+api.use(function(req, res, next) {
+  res.header("Access-Control-Allow-Origin", "whatsopdahl.com");
+  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+  if (req.method == 'OPTIONS') {
+    req.send(200);
+  } else {
+    next();
+  }
+});
 api.use(bodyParser.urlencoded({
   extended : true
 }));
 api.use(bodyParser.json());
-api.use(function(req, res, next) {
-  res.header("Access-Control-Allow-Origin", "whatsopdahl.com");
-  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
-  next();
-});
 
 api.post('/email', (req, resp) => {
   const { body } = req;
