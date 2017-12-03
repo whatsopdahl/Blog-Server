@@ -11,7 +11,7 @@ let transporter = mailer.createTransport({
     }
 });
 
-api.set('port', (process.env.port || 5000));
+api.set('port', (process.env.PORT || 5000));
 
 api.use(function(req, res, next) {
     res.header('Access-Control-Allow-Origin', '*');
